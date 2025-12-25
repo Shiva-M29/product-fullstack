@@ -1,17 +1,20 @@
-# Use Java 21 (compatible with Spring Boot)
-FROM eclipse-temurin:21-jdk
+# -------- BUILD STAGE --------
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and project files
-COPY . .
+COPY pom.xml .
+COPY src ./src
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-# Expose port (Render will map it)
+# -------- RUN STAGE --------
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Run the Spring Boot jar
-CMD ["java", "-jar", "target/*.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
