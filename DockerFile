@@ -1,0 +1,17 @@
+# Use Java 21 (compatible with Spring Boot)
+FROM eclipse-temurin:21-jdk
+
+# Set working directory
+WORKDIR /app
+
+# Copy Maven wrapper and project files
+COPY . .
+
+# Build the application
+RUN ./mvnw clean package -DskipTests
+
+# Expose port (Render will map it)
+EXPOSE 8080
+
+# Run the Spring Boot jar
+CMD ["java", "-jar", "target/*.jar"]
